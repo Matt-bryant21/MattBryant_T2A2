@@ -10,6 +10,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://dana_white:1234@l
 #create the database object
 db = SQLAlchemy(app)
 
+# Create divisions table
 class Division(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
@@ -18,7 +19,7 @@ class Division(db.Model):
     def __repr__(self):
         return f"<Division {self.name}>"
 
-
+# Create fighters table
 class Fighter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
@@ -34,6 +35,14 @@ class Fighter(db.Model):
     def __repr__(self):
         return f"<Fighter {self.name}>"
 
+# Create users table
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+
+# Create all tables
 @app.cli.command("create")
 def create_db():
     db.drop_all()
@@ -42,6 +51,7 @@ def create_db():
     print("Tables created")
 
 
+# Seed all new tables with respective data 
 @app.cli.command("seed")
 def seed_db():
     # Seed divisions
@@ -96,7 +106,7 @@ def seed_db():
     db.session.commit()
     print("Fighters seeded")
 
-
+# Endpoints 
 @app.route('/')
 def hello():
     return 'Hello'
