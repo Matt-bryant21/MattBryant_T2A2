@@ -45,10 +45,28 @@ def create_db():
 @app.cli.command("seed")
 def seed_db():
     # Seed divisions
-    lightweight = Division(name="Lightweight", description="Up to 155 lb (70.31 kg)")
+    flyweight = Division(name="Flyweight", description=f"Up to {126} lb ({round(126 * 0.453592, 2)} kg)")
+    db.session.add(flyweight)
+    
+    bantamweight = Division(name="Bantamweight", description=f"Up to {135} lb ({round(135 * 0.453592, 2)} kg)")
+    db.session.add(bantamweight)
+    
+    featherweight = Division(name="Featherweight", description=f"Up to {145} lb ({round(145 * 0.453592, 2)} kg)")
+    db.session.add(featherweight)
+      
+    lightweight = Division(name="Lightweight", description=f"Up to {155} lb ({round(155 * 0.453592, 2)} kg)")
     db.session.add(lightweight)
+    
+    welterweight = Division(name="Welterweight", description=f"Up to {170} lb ({round(170 * 0.453592, 2)} kg)")
+    db.session.add(welterweight)
+    
+    middleweight = Division(name="Middleweight", description=f"Up to {185} lb ({round(185 * 0.453592, 2)} kg)")
+    db.session.add(middleweight)
+    
+    light_heavyweight = Division(name="Light_heavyweight", description=f"Up to {205} lb ({round(205 * 0.453592, 2)} kg)")
+    db.session.add(light_heavyweight)
 
-    heavyweight = Division(name="Heavyweight", description="Over 205 lb (93 kg)")
+    heavyweight = Division(name="Heavyweight", description=f"Over {205} lb ({round(205 * 0.453592, 2)} kg)")
     db.session.add(heavyweight)
 
     db.session.commit()
