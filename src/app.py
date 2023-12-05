@@ -19,7 +19,27 @@ class Fighter(db.Model):
     division = db.Column(db.String(50))
     record = db.Column(db.String(20))
 
-
+@app.cli.command("create")
+def create_db():
+    db.create_all()
+    print("Tables created")
+    
+@app.cli.command("seed")
+def seed_db():
+    # create the first card object
+    alex_volk = Fighter(
+        # set the attributes, not the id, SQLAlchemy will manage that for us
+        name = "Alexander Volkanovski",
+        age = "35",
+        height = "167",
+        weight = "145",
+        division = "Lightweight",
+        record = "23/3/0"
+    )
+    # Add the object as a new row to the table
+    db.session.add(alex_volk)
+    db.session.commit()
+    print("Table seeded")
 
 @app.route('/')
 def hello():
