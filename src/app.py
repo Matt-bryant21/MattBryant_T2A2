@@ -1,14 +1,22 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy 
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+
 
 
 app = Flask(__name__)
 
 # set the database URI via SQLAlchemy, 
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://dana_white:1234@localhost:5432/ufc"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = "poundforpound"  # Change this to a strong secret key
+app.config["JWT_SECRET_KEY"] = "poundforpound"  # Change this to a strong JWT secret key
 
-#create the database object
+#create the database and auth objects
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 
 # Create divisions table
 class Division(db.Model):
@@ -31,6 +39,9 @@ class Fighter(db.Model):
     division = db.relationship('Division', backref=db.backref('fighters', lazy=True))
     
     record = db.Column(db.String(20))
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('fighters', lazy=True))
 
     def __repr__(self):
         return f"<Fighter {self.name}>"
@@ -54,6 +65,16 @@ def create_db():
 # Seed all new tables with respective data 
 @app.cli.command("seed")
 def seed_db():
+    # Seed users
+    admin_user = User(
+        username="dana_white",
+        password="1234",
+        role="admin"
+    )
+    db.session.add(admin_user)
+    db.session.commit()
+    print("User seeded")
+    
     # Seed divisions
     flyweight = Division(name="Flyweight", description=f"Up to {126} lb ({round(126 * 0.453592, 2)} kg)")
     db.session.add(flyweight)
@@ -89,7 +110,8 @@ def seed_db():
         height=167.0,
         weight=145.0,
         division_id=lightweight.id,
-        record="23/3/0"
+        record="23/3/0",
+        user_id=admin_user.id 
     )
     db.session.add(alex_volk)
 
@@ -99,7 +121,8 @@ def seed_db():
         height=195.0,
         weight=248.0,
         division_id=heavyweight.id,
-        record="27/1/0"
+        record="27/1/0",
+        user_id=admin_user.id 
     )
     db.session.add(jon_jones)
 
@@ -110,3 +133,7 @@ def seed_db():
 @app.route('/')
 def hello():
     return 'Hello'
+
+
+if __name__ == '__main__':
+    app.run(debug=True) 
