@@ -20,8 +20,27 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+@app.errorhandler(400)
+def handle_bad_request(error):
+    response = {'message': 'Bad request'}
+    return jsonify(response), 400
+
+def handle_exception(error):
+    response = {'message': 'An unexpected error occurred'}
+    return jsonify(response), 500
+
+@app.errorhandler(404)
+def handle_not_found(error):
+    response = {'message': 'Resource not found'}
+    return jsonify(response), 404
+
+@app.errorhandler(401)
+def handle_unauthorized(error):
+    response = {'message': 'Unauthorized'}
+    return jsonify(response), 401
+
 # Create divisions table
-class Division(db.Model):
+class Divisions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
     description = db.Column(db.Text)
@@ -29,31 +48,31 @@ class Division(db.Model):
     def __repr__(self):
         return f"<Division {self.name}>"
 
+# Create users table
+class UFC_users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+
 # Create fighters table
-class Fighter(db.Model):
+class Fighters(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     age = db.Column(db.Integer)
     height = db.Column(db.Float)
     weight = db.Column(db.Float)
 
-    division_id = db.Column(db.Integer, db.ForeignKey('division.id'), nullable=False)
-    division = db.relationship('Division', backref=db.backref('fighters', lazy=True))
+    division_id = db.Column(db.Integer, db.ForeignKey('divisions.id'), nullable=False)
+    division = db.relationship('Divisions', backref=db.backref('fighters', lazy=True))
 
     record = db.Column(db.String(20))
 
-    user_id = db.Column(db.Integer, db.ForeignKey('ufc_user.id'), nullable=False)
-    user = db.relationship('UFC_user', backref=db.backref('fighters', lazy=True))
+    user_id = db.Column(db.Integer, db.ForeignKey('ufc_users.id'), nullable=False)
+    user = db.relationship('UFC_users', backref=db.backref('fighters', lazy=True))
 
     def __repr__(self):
         return f"<Fighter {self.name}>"
-
-# Create users table
-class UFC_user(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(20), nullable=False)
 
 # Create all tables
 @app.cli.command("create")
@@ -67,17 +86,17 @@ def create_db():
 @app.cli.command("seed")
 def seed_db():
     # Seed users
-    admin_user = UFC_user(
-        username="daniel_white",
+    admin_user = UFC_users(
+        username="dana_white",
         password=bcrypt.generate_password_hash("1234").decode('utf-8'),
         role="admin"
     )
-    user = UFC_user(
+    user = UFC_users(
         username="referee",
         password=bcrypt.generate_password_hash("stoppage").decode('utf-8'),
         role="referee"
     )
-    user2 = UFC_user(
+    user2 = UFC_users(
         username="spectator",
         password=bcrypt.generate_password_hash("spectator1234").decode('utf-8'),
         role="spectator"
@@ -86,38 +105,38 @@ def seed_db():
     db.session.add(user)
     db.session.add(user2)
     db.session.commit()
-    print("User seeded")
+    print("Users seeded")
 
     # Seed divisions
-    flyweight = Division(name="Flyweight", description=f"Up to {126} lb ({round(126 * 0.453592, 2)} kg)")
+    flyweight = Divisions(name="Flyweight", description=f"Up to {126} lb ({round(126 * 0.453592, 2)} kg)")
     db.session.add(flyweight)
 
-    bantamweight = Division(name="Bantamweight", description=f"Up to {135} lb ({round(135 * 0.453592, 2)} kg)")
+    bantamweight = Divisions(name="Bantamweight", description=f"Up to {135} lb ({round(135 * 0.453592, 2)} kg)")
     db.session.add(bantamweight)
 
-    featherweight = Division(name="Featherweight", description=f"Up to {145} lb ({round(145 * 0.453592, 2)} kg)")
+    featherweight = Divisions(name="Featherweight", description=f"Up to {145} lb ({round(145 * 0.453592, 2)} kg)")
     db.session.add(featherweight)
 
-    lightweight = Division(name="Lightweight", description=f"Up to {155} lb ({round(155 * 0.453592, 2)} kg)")
+    lightweight = Divisions(name="Lightweight", description=f"Up to {155} lb ({round(155 * 0.453592, 2)} kg)")
     db.session.add(lightweight)
 
-    welterweight = Division(name="Welterweight", description=f"Up to {170} lb ({round(170 * 0.453592, 2)} kg)")
+    welterweight = Divisions(name="Welterweight", description=f"Up to {170} lb ({round(170 * 0.453592, 2)} kg)")
     db.session.add(welterweight)
 
-    middleweight = Division(name="Middleweight", description=f"Up to {185} lb ({round(185 * 0.453592, 2)} kg)")
+    middleweight = Divisions(name="Middleweight", description=f"Up to {185} lb ({round(185 * 0.453592, 2)} kg)")
     db.session.add(middleweight)
 
-    light_heavyweight = Division(name="Light_heavyweight", description=f"Up to {205} lb ({round(205 * 0.453592, 2)} kg)")
+    light_heavyweight = Divisions(name="Light_heavyweight", description=f"Up to {205} lb ({round(205 * 0.453592, 2)} kg)")
     db.session.add(light_heavyweight)
 
-    heavyweight = Division(name="Heavyweight", description=f"Over {205} lb ({round(205 * 0.453592, 2)} kg)")
+    heavyweight = Divisions(name="Heavyweight", description=f"Over {205} lb ({round(205 * 0.453592, 2)} kg)")
     db.session.add(heavyweight)
 
     db.session.commit()
     print("Divisions seeded")
 
     # Seed fighters
-    alex_volk = Fighter(
+    alex_volk = Fighters(
         name="Alexander Volkanovski",
         age=35,
         height=167.0,
@@ -128,7 +147,7 @@ def seed_db():
     )
     db.session.add(alex_volk)
 
-    jon_jones = Fighter(
+    jon_jones = Fighters(
         name="Jon Bones Jones",
         age=36,
         height=195.0,
@@ -139,7 +158,7 @@ def seed_db():
     )
     db.session.add(jon_jones)
 
-    Matt_bryant = Fighter(
+    Matt_bryant = Fighters(
         name="Matt Bryant",
         age=29,
         height=170.0,
@@ -154,14 +173,13 @@ def seed_db():
     print("Fighters seeded")
 
 # Endpoints 
-
 # register user
 @app.route('/register', methods=['POST'])
 @jwt_required()
 def register():
     # Check if the current user has the "admin" role
     current_user = get_jwt_identity()
-    user = UFC_user.query.filter_by(username=current_user['username']).first()
+    user = UFC_users.query.filter_by(username=current_user['username']).first()
 
     current_user = get_jwt_identity()
     if 'admin' not in current_user['role']:
@@ -176,7 +194,7 @@ def register():
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    new_user = UFC_user(username=username, password=hashed_password, role=role)
+    new_user = UFC_users(username=username, password=hashed_password, role=role)
     db.session.add(new_user)
     db.session.commit()
 
@@ -190,7 +208,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = UFC_user.query.filter_by(username=username).first()
+    user = UFC_users.query.filter_by(username=username).first()
 
     if user and bcrypt.check_password_hash(user.password, password):
         access_token = create_access_token(identity={'username': user.username, 'role': user.role})
@@ -224,7 +242,7 @@ def view_fighter(fighter_id):
 
     # Check if the user's role is in the allowed roles
     if any(role in current_user['role'] for role in ALLOWED_ROLES):
-        fighter = Fighter.query.get(fighter_id)
+        fighter = Fighters.query.get(fighter_id)
         if fighter:
             # Create a dictionary with the desired order
             fighter_info = {
@@ -248,6 +266,39 @@ def view_fighter(fighter_id):
             return jsonify({'message': 'Fighter not found'}), 404
     else:
         return jsonify({'message': 'Unauthorized'}), 403
+
+
+# Update fighter information
+@app.route('/update_fighter/<int:fighter_id>', methods=['PUT'])
+@jwt_required()
+def update_fighter(fighter_id):
+    current_user = get_jwt_identity()
+    if 'admin' not in current_user['role'] and 'referee' not in current_user['role']:
+        return jsonify({'message': 'Unauthorized'}), 403
+
+    fighter = Fighters.query.get(fighter_id)
+
+    if fighter:
+        data = request.get_json()
+        fighter.name = data.get('name', fighter.name)
+        fighter.age = data.get('age', fighter.age)
+        fighter.height = data.get('height', fighter.height)
+        fighter.weight = data.get('weight', fighter.weight)
+        fighter.record = data.get('record', fighter.record)
+
+        # Assuming you also have a division_id in the data for updating the division
+        division_id = data.get('division_id')
+        if division_id:
+            division = Division.query.get(division_id)
+            if division:
+                fighter.division = division
+            else:
+                return jsonify({'message': 'Division not found'}), 404
+
+        db.session.commit()
+        return jsonify({'message': 'Fighter updated successfully'}), 200
+    else:
+        return jsonify({'message': 'Fighter not found'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
