@@ -9,7 +9,8 @@ app = Flask(__name__)
 
 ALLOWED_ROLES = ['admin', 'referee', 'spectator']
 
-# set the database URI via SQLAlchemy, 
+# set the database URI via SQLAlchemy,
+
 app.config["SQLALCHEMY_DATABASE_URI"] = environ.get('DB_URI')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = environ.get('SECRET_KEY')  # Change this to a strong secret key
@@ -20,24 +21,29 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
+
 @app.errorhandler(400)
 def handle_bad_request(error):
     response = {'message': 'Bad request'}
     return jsonify(response), 400
 
+
 def handle_exception(error):
     response = {'message': 'An unexpected error occurred'}
     return jsonify(response), 500
+
 
 @app.errorhandler(404)
 def handle_not_found(error):
     response = {'message': 'Resource not found'}
     return jsonify(response), 404
 
+
 @app.errorhandler(401)
 def handle_unauthorized(error):
     response = {'message': 'Unauthorized'}
     return jsonify(response), 401
+
 
 # Create divisions table
 class Divisions(db.Model):
@@ -48,12 +54,14 @@ class Divisions(db.Model):
     def __repr__(self):
         return f"<Division {self.name}>"
 
+
 # Create users table
 class UFC_users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False)
+
 
 # Create fighters table
 class Fighters(db.Model):
@@ -74,6 +82,7 @@ class Fighters(db.Model):
     def __repr__(self):
         return f"<Fighter {self.name}>"
 
+
 # Create all tables
 @app.cli.command("create")
 def create_db():
@@ -82,7 +91,8 @@ def create_db():
     db.session.commit()
     print("Tables created")
 
-# Seed all new tables with respective data 
+
+# Seed all new tables with respective data
 @app.cli.command("seed")
 def seed_db():
     # Seed users
@@ -126,7 +136,8 @@ def seed_db():
     middleweight = Divisions(name="Middleweight", description=f"Up to {185} lb ({round(185 * 0.453592, 2)} kg)")
     db.session.add(middleweight)
 
-    light_heavyweight = Divisions(name="Light_heavyweight", description=f"Up to {205} lb ({round(205 * 0.453592, 2)} kg)")
+    light_heavyweight = Divisions(name="Light_heavyweight",
+                                  description=f"Up to {205} lb ({round(205 * 0.453592, 2)} kg)")
     db.session.add(light_heavyweight)
 
     heavyweight = Divisions(name="Heavyweight", description=f"Over {205} lb ({round(205 * 0.453592, 2)} kg)")
@@ -143,7 +154,7 @@ def seed_db():
         weight=145.0,
         division_id=lightweight.id,
         record="23/3/0",
-        user_id=admin_user.id 
+        user_id=admin_user.id
     )
     db.session.add(alex_volk)
 
@@ -154,37 +165,35 @@ def seed_db():
         weight=248.0,
         division_id=heavyweight.id,
         record="27/1/0",
-        user_id=admin_user.id 
+        user_id=admin_user.id
     )
     db.session.add(jon_jones)
 
-    Matt_bryant = Fighters(
+    matt_bryant = Fighters(
         name="Matt Bryant",
         age=29,
         height=170.0,
         weight=145.0,
         division_id=lightweight.id,
         record="300/0/0",
-        user_id=admin_user.id 
+        user_id=admin_user.id
     )
-    db.session.add(Matt_bryant)
+    db.session.add(matt_bryant)
 
     db.session.commit()
     print("Fighters seeded")
 
-# Endpoints 
+
+# Endpoints
 # register user
 @app.route('/register', methods=['POST'])
 @jwt_required()
 def register():
     # Check if the current user has the "admin" role
     current_user = get_jwt_identity()
-    user = UFC_users.query.filter_by(username=current_user['username']).first()
-
-    current_user = get_jwt_identity()
     if 'admin' not in current_user['role']:
         return jsonify({'message': 'Unauthorized'}), 403
-    
+
     # Proceed with user registration
     data = request.get_json()
 
@@ -199,6 +208,7 @@ def register():
     db.session.commit()
 
     return jsonify({'message': 'User registered successfully'}), 201
+
 
 # User login
 @app.route('/login', methods=['POST'])
@@ -216,16 +226,16 @@ def login():
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
-# delete fighter 
+
+# delete fighter
 @app.route('/delete_fighter/<int:fighter_id>', methods=['DELETE'])
 @jwt_required()
 def delete_fighter(fighter_id):
-    
     current_user = get_jwt_identity()
     if 'admin' not in current_user['role']:
         return jsonify({'message': 'Unauthorized'}), 403
 
-    fighter = Fighter.query.get(fighter_id)
+    fighter = Fighters.query.get(fighter_id)
 
     if fighter:
         db.session.delete(fighter)
@@ -234,7 +244,8 @@ def delete_fighter(fighter_id):
     else:
         return jsonify({'message': 'Fighter not found'}), 404
 
-# View fighter 
+
+# View fighter
 @app.route('/view_fighter/<int:fighter_id>', methods=['GET'])
 @jwt_required()
 def view_fighter(fighter_id):
@@ -289,7 +300,7 @@ def update_fighter(fighter_id):
         # Assuming you also have a division_id in the data for updating the division
         division_id = data.get('division_id')
         if division_id:
-            division = Division.query.get(division_id)
+            division = Divisions.query.get(division_id)
             if division:
                 fighter.division = division
             else:
@@ -299,6 +310,7 @@ def update_fighter(fighter_id):
         return jsonify({'message': 'Fighter updated successfully'}), 200
     else:
         return jsonify({'message': 'Fighter not found'}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
