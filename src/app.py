@@ -3,12 +3,18 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import json
-from config import Config
 from os import environ
 
 app = Flask(__name__)
-app.config.from_object(Config)
 
+ALLOWED_ROLES = ['admin', 'referee', 'spectator']
+
+# set the database URI via SQLAlchemy,
+
+app.config["SQLALCHEMY_DATABASE_URI"] = environ.get('DB_URI')
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = environ.get('SECRET_KEY')  # Change this to a strong secret key
+app.config["JWT_SECRET_KEY"] = environ.get('JWT_SECRET_KEY')  # Change this to a strong JWT secret key
 
 # create the database and auth objects
 db = SQLAlchemy(app)
@@ -179,8 +185,6 @@ def seed_db():
 
 
 # Endpoints
-ALLOWED_ROLES = ['admin', 'referee', 'spectator']
-
 # register user
 @app.route('/register', methods=['POST'])
 @jwt_required()
