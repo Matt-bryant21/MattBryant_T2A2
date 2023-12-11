@@ -34,7 +34,7 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 
-# User login
+# user login
 @users_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -50,3 +50,33 @@ def login():
     else:
         return jsonify({'message': 'Invalid username or password'}), 401
 
+
+# delete user
+@users_bp.route('/delete_user/<int:user_id>', methods=['DELETE'])
+@jwt_required()
+def delete_user(user_id):
+    current_user = get_jwt_identity()
+
+    # Check if the current user has the "admin" role
+    if 'admin' not in current_user['role']:
+        return jsonify({'message': 'Unauthorized'}), 403
+
+    # Check if the user to be deleted is the same as the current user
+    if user_id == current_user.get('id'):
+        return jsonify({'message': 'Cannot delete the current user'}), 400
+
+    # Check if the user to be deleted exists
+    user = UFC_users.query.get(user_id)
+
+    if user:
+        # Check if there is more than one admin user
+        admin_users_count = UFC_users.query.filter_by(role='admin').count()
+
+        if admin_users_count <= 1 and user.role == 'admin':
+            return jsonify({'message': 'Cannot delete the last admin user. Create another admin user first.'}), 400
+
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User deleted successfully'}), 200
+    else:
+        return jsonify({'message': 'User not found'}), 404

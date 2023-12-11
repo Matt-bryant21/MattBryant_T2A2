@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models.models import Fighters
+from models.models import Fighters, Divisions, UFC_users
 from setup import bcrypt, db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import json
@@ -8,22 +8,59 @@ fighters_bp = Blueprint("fighters", __name__, url_prefix="/fighters")
 
 ALLOWED_ROLES = ['admin', 'referee', 'spectator']
 
-# delete fighter
-@fighters_bp.route('/delete_fighter/<int:fighter_id>', methods=['DELETE'])
+# Create new fighter
+@fighters_bp.route('/add_fighter', methods=['POST'])
 @jwt_required()
-def delete_fighter(fighter_id):
+def add_fighter():
     current_user = get_jwt_identity()
+
+    # Check if the user's role is admin
     if 'admin' not in current_user['role']:
         return jsonify({'message': 'Unauthorized'}), 403
 
-    fighter = Fighters.query.get(fighter_id)
+    # Get data from the request body
+    data = request.get_json()
 
-    if fighter:
-        db.session.delete(fighter)
-        db.session.commit()
-        return jsonify({'message': 'Fighter deleted successfully'}), 200
-    else:
-        return jsonify({'message': 'Fighter not found'}), 404
+    # Assuming you have all the required fields in the data
+    name = data.get('name')
+    age = data.get('age')
+    height = data.get('height')
+    weight = data.get('weight')
+    record = data.get('record')
+    division_id = data.get('division_id')  # Assuming you have a division_id in the data
+
+    # Check if all required fields are present
+    if not all([name, age, height, weight, record, division_id]):
+        return jsonify({'message': 'Incomplete data'}), 400
+
+    # Check if the division exists
+    division = Divisions.query.get(division_id)
+    if not division:
+        return jsonify({'message': 'Division not found'}), 404
+
+
+    user = UFC_users.query.filter_by(username=current_user['username']).first()
+
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+
+    # Create a new fighter with the current user's ID
+    new_fighter = Fighters(
+        name=name,
+        age=age,
+        height=height,
+        weight=weight,
+        record=record,
+        division=division,
+        user_id=user.id
+    )
+
+    # Add the fighter to the database
+    db.session.add(new_fighter)
+    db.session.commit()
+
+    return jsonify({'message': 'Fighter added successfully'}), 201
 
 
 # View fighter
@@ -51,7 +88,7 @@ def view_fighter(fighter_id):
                 'record': fighter.record
             }
 
-            # Use json.dumps for strict control over key order
+            # Use json.dumps for control over key order
             response_json = json.dumps(fighter_info, sort_keys=True, indent=2)
             return response_json, 200, {'Content-Type': 'application/json'}
         else:
@@ -89,5 +126,23 @@ def update_fighter(fighter_id):
 
         db.session.commit()
         return jsonify({'message': 'Fighter updated successfully'}), 200
+    else:
+        return jsonify({'message': 'Fighter not found'}), 404
+    
+
+# delete fighter
+@fighters_bp.route('/delete_fighter/<int:fighter_id>', methods=['DELETE'])
+@jwt_required()
+def delete_fighter(fighter_id):
+    current_user = get_jwt_identity()
+    if 'admin' not in current_user['role']:
+        return jsonify({'message': 'Unauthorized'}), 403
+
+    fighter = Fighters.query.get(fighter_id)
+
+    if fighter:
+        db.session.delete(fighter)
+        db.session.commit()
+        return jsonify({'message': 'Fighter deleted successfully'}), 200
     else:
         return jsonify({'message': 'Fighter not found'}), 404
