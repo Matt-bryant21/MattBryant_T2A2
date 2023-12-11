@@ -47,6 +47,32 @@ def create_division():
     return jsonify({'message': 'Division created successfully'}), 201
 
 
+# view division
+@divisions_bp.route('/view_division/<int:division_id>', methods=['GET'])
+@jwt_required()
+def view_division(division_id):
+    current_user = get_jwt_identity()
+
+    # Check if the user's role is in the allowed roles
+    if any(role in current_user['role'] for role in ALLOWED_ROLES):
+        division = Divisions.query.get(division_id)
+        if division:
+            # Create a dictionary with the division information
+            division_info = {
+                'id': division.id,
+                'name': division.name,
+                'description': division.description
+            }
+
+            # Use json.dumps for control over key order
+            response_json = json.dumps(division_info, sort_keys=True, indent=2)
+            return response_json, 200, {'Content-Type': 'application/json'}
+        else:
+            return jsonify({'message': 'Division not found'}), 404
+    else:
+        return jsonify({'message': 'Unauthorized'}), 403
+
+
 # update division
 @divisions_bp.route('/update_division/<int:division_id>', methods=['PUT'])
 @jwt_required()
@@ -54,7 +80,7 @@ def update_division(division_id):
     current_user = get_jwt_identity()
 
     # Check if the user's role is admin
-    if 'admin' not in current_user['role']:
+    if 'admin' not in current_user['role'] and 'referee' not in current_user['role']:
         return jsonify({'message': 'Unauthorized'}), 403
 
     # Get data from the request body
