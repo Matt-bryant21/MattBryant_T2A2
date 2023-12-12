@@ -8,20 +8,20 @@ fighters_bp = Blueprint("fighters", __name__, url_prefix="/fighters")
 
 ALLOWED_ROLES = ['admin', 'referee', 'spectator']
 
-# Create new fighter
+# create new fighter
 @fighters_bp.route('/add_fighter', methods=['POST'])
 @jwt_required()
 def add_fighter():
     current_user = get_jwt_identity()
 
-    # Check if the user's role is admin
+    # check if the user's role is admin
     if 'admin' not in current_user['role']:
         return jsonify({'message': 'Unauthorized'}), 403
 
-    # Get data from the request body
+    # get data from the request body
     data = request.get_json()
 
-    # Assuming you have all the required fields in the data
+    # assuming you have all the required fields in the data
     name = data.get('name')
     age = data.get('age')
     height = data.get('height')
@@ -29,11 +29,11 @@ def add_fighter():
     record = data.get('record')
     division_id = data.get('division_id')  # Assuming you have a division_id in the data
 
-    # Check if all required fields are present
+    # check if all required fields are present
     if not all([name, age, height, weight, record, division_id]):
         return jsonify({'message': 'Incomplete data'}), 400
 
-    # Check if the division exists
+    # check if the division exists
     division = Divisions.query.get(division_id)
     if not division:
         return jsonify({'message': 'Division not found'}), 404
@@ -45,7 +45,7 @@ def add_fighter():
         return jsonify({'message': 'User not found'}), 404
 
 
-    # Create a new fighter with the current user's ID
+    # create a new fighter with the current user's ID
     new_fighter = Fighters(
         name=name,
         age=age,
@@ -56,24 +56,24 @@ def add_fighter():
         user_id=user.id
     )
 
-    # Add the fighter to the database
+    # add the fighter to the database
     db.session.add(new_fighter)
     db.session.commit()
 
     return jsonify({'message': 'Fighter added successfully'}), 201
 
 
-# View fighter
+# view fighter
 @fighters_bp.route('/view_fighter/<int:fighter_id>', methods=['GET'])
 @jwt_required()
 def view_fighter(fighter_id):
     current_user = get_jwt_identity()
 
-    # Check if the user's role is in the allowed roles
+    # check if the user's role is in the allowed roles
     if any(role in current_user['role'] for role in ALLOWED_ROLES):
         fighter = Fighters.query.get(fighter_id)
         if fighter:
-            # Create a dictionary with the desired order
+            # create a dictionary with the desired order
             fighter_info = {
                 'id': fighter.id,
                 'name': fighter.name,
@@ -88,7 +88,7 @@ def view_fighter(fighter_id):
                 'record': fighter.record
             }
 
-            # Use json.dumps for control over key order
+            # use json.dumps for control over key order
             response_json = json.dumps(fighter_info, sort_keys=True, indent=2)
             return response_json, 200, {'Content-Type': 'application/json'}
         else:
@@ -97,7 +97,7 @@ def view_fighter(fighter_id):
         return jsonify({'message': 'Unauthorized'}), 403
 
 
-# Update fighter information
+# update fighter information
 @fighters_bp.route('/update_fighter/<int:fighter_id>', methods=['PUT'])
 @jwt_required()
 def update_fighter(fighter_id):
@@ -115,7 +115,7 @@ def update_fighter(fighter_id):
         fighter.weight = data.get('weight', fighter.weight)
         fighter.record = data.get('record', fighter.record)
 
-        # Assuming you also have a division_id in the data for updating the division
+        # assuming you also have a division_id in the data for updating the division
         division_id = data.get('division_id')
         if division_id:
             division = Divisions.query.get(division_id)

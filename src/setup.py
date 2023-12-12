@@ -19,6 +19,7 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
 
+# error handlers
 @app.errorhandler(400)
 def handle_bad_request(error):
     response = {'message': 'Bad request'}

@@ -4,7 +4,7 @@ from models.models import Divisions, UFC_users, Fighters
 
 db_commands = Blueprint('db', __name__)
 
-# Create all tables
+# create all tables
 @db_commands.cli.command("create")
 def create_db():
     db.drop_all()
@@ -12,10 +12,10 @@ def create_db():
     db.session.commit()
     print("Tables created")
 
-# Seed all new tables with respective data
+# seed all new tables with respective data
 @db_commands.cli.command("seed")
 def seed_db():
-    # Seed users
+    # seed users
     admin_user = UFC_users(
         username="dana_white",
         password=bcrypt.generate_password_hash("1234").decode('utf-8'),
@@ -37,7 +37,7 @@ def seed_db():
     db.session.commit()
     print("Users seeded")
 
-    # Seed divisions
+    # seed divisions
     flyweight = Divisions(name="Flyweight", description=f"Up to {126} lb ({round(126 * 0.453592, 2)} kg)")
     db.session.add(flyweight)
 
@@ -66,7 +66,7 @@ def seed_db():
     db.session.commit()
     print("Divisions seeded")
 
-    # Seed fighters
+    # seed fighters
     alex_volk = Fighters(
         name="Alexander Volkanovski",
         age=35,

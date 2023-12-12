@@ -1,6 +1,6 @@
 from setup import db
 
-# Create divisions table
+# create divisions table
 class Divisions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
@@ -10,7 +10,7 @@ class Divisions(db.Model):
         return f"<Division {self.name}>"
 
 
-# Create users table
+# create users table
 class UFC_users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -18,7 +18,7 @@ class UFC_users(db.Model):
     role = db.Column(db.String(20), nullable=False)
 
 
-# Create fighters table
+# create fighters table
 class Fighters(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
