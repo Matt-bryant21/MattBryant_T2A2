@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models.models import Divisions
+from models.models import Divisions, Fighters
 from setup import bcrypt, db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import json
@@ -108,19 +108,22 @@ def update_division(division_id):
     return jsonify({'message': 'Division updated successfully'}), 200
 
 
-# delete division
 @divisions_bp.route('/delete_division/<int:division_id>', methods=['DELETE'])
 @jwt_required()
 def delete_division(division_id):
-    current_user = get_jwt_identity()
-    if 'admin' not in current_user['role']:
-        return jsonify({'message': 'Unauthorized'}), 403
-
+    # Check if division exists
     division = Divisions.query.get(division_id)
-
-    if division:
-        db.session.delete(division)
-        db.session.commit()
-        return jsonify({'message': 'Division deleted successfully'}), 200
-    else:
+    if not division:
         return jsonify({'message': 'Division not found'}), 404
+
+    # Check for associated fighters
+    fighters = Fighters.query.filter_by(division_id=division_id).first()
+    if fighters:
+        return jsonify({'message': 'Cannot delete division with associated fighters'}), 400
+
+    # Proceed with deletion if no fighters are associated
+    db.session.delete(division)
+    db.session.commit()
+
+    return jsonify({'message': 'Division deleted successfully'}), 200
+    return jsonify({'message': 'Division deleted successfully'}), 200
