@@ -252,6 +252,10 @@ https://www.freecodecamp.org/news/what-is-an-orm-the-meaning-of-object-relationa
 
 
 ## R6 An ERD for the app
+![ERD](/docs/T2A2%20ERD.png)
+
+In the above ERD diagram, we see a visualization of the relations between the 3 models and their respective attributes. 'Divisions' and 'UFC_users' are independent entities with their own attributes. They do not have foreign keys linking to other tables but are referenced by the 'Fighters' table. 'Fighters' is dependent on both 'Divisions' and 'UFC_users', with foreign keys (division_id and user_id) linking to these tables. 
+This  indicates that each fighter is associated with one division and one user, but each division and user can be associated with multiple fighters.
 
 ## R7 Detail any third-party servies your app will use
 #### Flask
@@ -324,5 +328,25 @@ The division relationship in the Fighters model maps to the Divisions model and 
 
 ## R9 Discuss the database relations to be implemented
 
-## R10 Describe the way tasks are allocated and tracked in your project
+In the application's database structure, a one-to-many relationship is set between Divisions and Fighters, as well as between UFC_users and Fighters. This allows each division to handle numerous fighters. On the other hand, each fighter is exclusively associated with one division, ensuring clear classification. In a parallel structure, each user, encompassing roles like admin, referees, and spectators, can be responsible for or associated with multiple fighters, but each fighter is uniquely linked to a single user.
 
+The database’s integrity is maintained through the use of primary keys, which uniquely identify each record, and foreign keys, which establish links between tables and ensure consistency across related data. This setup not only guarantees the accuracy and reliability of the data but also simplifies complex queries, such as retrieving all fighters in a specific division or listing all fighters managed by a particular user. By leveraging these relational database principles, the application achieves a harmonious balance between comprehensive data organization and the flexibility to handle diverse user roles and fighter categories, laying a solid foundation for efficient data management and potential future scalability.
+
+
+## R10 Describe the way tasks are allocated and tracked in your project
+Tasks were tracked and allocated via discord standups, git commits, and the program [Linear](https://linear.app/matt-bryant-projects/project/ufc-webserver-api-8cc1a764fb1d/MAT).
+Linear was used to hold tasks in a backlog and then each work session, I would find the necessary issues and bring them into the 'to do' section and deal with them that way. Milestones were also set to link issues to a broader task. By using Linear, I was able to carefully track sections of the code and planning process, and allocate the correct amount of time for each issue including some last minute fixes. Standups were used via discord to check in with the class and as a means of academic suport. Finally, Git was used for version control and to track changes via staging commits. This was crucial in the early stages of the code as I had quite some trouble modularizing and getting everything into Blueprints. Being able to roll back to previous versions was crucial in writing efficent code and the problem solving necessary.
+
+![Standup1](/docs/standup-1.JPG)
+
+![Standup2](/docs/standup1.JPG)
+
+![linear1](/docs/linearwhole.JPG)
+
+![linear2](/docs/issues.JPG)
+
+![linear3](/docs/Milestones.JPG)
+
+![Gitcommit1](/docs/gitcommit1.JPG)
+
+![Gitcommit2](/docs/gitcommit2.JPG)
