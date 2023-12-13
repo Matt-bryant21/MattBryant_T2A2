@@ -20,7 +20,7 @@ The purpose of developing this web application is to address these specific prob
 
 * Facilitating Data Control and Security: Depending on their privileges, users can not only view but also modify fighter records. This includes adding new records, updating existing ones, and, where necessary, deleting them.
 
-* By tackling these problems, the app aims to streamline the management of fighter records, cater to the high expectations of UFC fans, and enhance the operational efficiency of managing fighter data. 
+By tackling these problems, the app aims to streamline the management of fighter records, cater to the high expectations of UFC fans, and enhance the operational efficiency of managing fighter data. 
 
 ## R2 Why is it a problem that needs solving? 
 The world of mixed martial arts, particularly in organizations like the UFC, represents a vast and complex ecosystem. At its core, athlete management in such a high-profile sport is a colossal undertaking, encompassing a range of critical aspects:
@@ -31,9 +31,48 @@ The world of mixed martial arts, particularly in organizations like the UFC, rep
 
 * Fan Engagement and Transparency: Fans and analysts demand up-to-date information on fighter stats, upcoming bouts, and division rankings. Providing this information in a user-friendly manner enhances fan engagement and the sport's accessibility.
 
-By creating an API that efficiently manages UFC fighter records and divisions, I am addressing these multifaceted challenges head-on.
+By creating an API that efficiently manages UFC fighter records and divisions, I am addressing these challenges head-on.
 
 ## R3 Why have you chosen this database system? What are the drawbacks compared to others?
+
+### Primary Differences
+
+***Server-Client Model vs Embedded Database:***
+
+* Postgres: Operates on a server-client model. It's a robust, multi-user DBMS that runs on a server and can be accessed remotely by multiple clients.
+
+* SQLite: An embedded database, it's integrated directly into the application. It's lightweight and intended for single-user applications or small-scale projects.
+
+***Performance and Scalability:***
+
+* Postgres: Known for its high performance, especially in handling complex queries, large databases, and multiple concurrent users. It's highly scalable, making it suitable for large-scale enterprise applications.
+
+* SQLite: Optimized for lower resource usage and is efficient for smaller-scale applications. However, it might not perform well with high concurrency or complex queries.
+
+***Feature Set:***
+
+* Postgres: Offers a wide range of features including advanced indexing, full-text search, data warehousing, and support for multiple programming languages. It also supports JSON and NoSQL features, catering to a wider range of applications.
+
+* SQLite: Provides a simpler feature set, focusing on basic SQL standards. While it supports most of the common SQL functionalities, it lacks some advanced features found in Postgres.
+
+***Data Integrity and Security:***
+
+* Postgres: Offers robust data integrity and security features. It includes support for ACID (Atomicity, Consistency, Isolation, Durability) properties, complex transactional capabilities, and strong security measures.
+
+* SQLite: While reliable for data integrity, its simpler nature means it lacks some of the more sophisticated security and transactional features present in Postgres.
+
+### Why Prefer Postgres?
+
+***Enterprise-Grade Capabilities:*** For large-scale, multi-user, enterprise-level applications, Postgres is the preferred choice due to its scalability, performance, and rich feature set.
+
+***Complex Data Handling:*** Postgres excels in handling complex queries, diverse data types, and large data volumes, making it ideal for complex applications like data analytics and warehousing.
+
+***Extension and Language Support:*** With its extensibility and support for various programming languages, Postgres is highly adaptable to a wide range of applications and development needs.
+
+***Strong Community and Support:*** Being one of the oldest and most mature open-source relational databases, Postgres has a strong community and extensive documentation, ensuring reliable support.
+
+### Conclusion
+While SQLite is an excellent choice for simpler, embedded database needs, Postgres stands out for applications that demand higher performance, scalability, and a comprehensive set of features. Its ability to handle complex, enterprise-level applications with efficiency and reliability makes Postgres a preferred choice for many developers and organizations.
 
 ## R4 Identify and discuss the key functionalities and benefits of an ORM
 
@@ -56,3 +95,6 @@ Endpoint documentation should include:
 ## R10 Describe the way tasks are allocated and tracked in your project
 
 ## References
+https://www.boltic.io/blog/postgresql-vs-sqlite#:~:text=SQLite%20may%20be%20the%20better,data%20and%20support%20advanced%20features.
+
+https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems
