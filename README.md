@@ -251,22 +251,76 @@ https://www.freecodecamp.org/news/what-is-an-orm-the-meaning-of-object-relationa
 ![Endpoint 13](/docs/endpoints/delete%20division.JPG)
 
 
-
 ## R6 An ERD for the app
 
 ## R7 Detail any third-party servies your app will use
+#### Flask
+Flask is a lightweight and flexible micro web framework for Python, used for developing web applications. It is distinguished by its simplicity and capability to scale up to complexity. Flask provides the basics for web development, such as routing, request handling, and templates. It supports extensions that can add application features as if they were implemented in Flask itself. Flask is well-suited for small to medium-sized applications and services, and its minimalistic and modular design makes it easy for beginners to learn and use.
+
+#### Psycopg2
+Psycopg2 is a popular PostgreSQL database adapter for the Python programming language. It is implemented to communicate with PostgreSQL databases. Psycopg2 is known for its stability, scalability, and performance. It supports many of the features of PostgreSQL, such as large objects, notifications, and advanced data types. 
+
 #### SQLAlchemy 
+SQLAlchemy is a database toolkit for Python, providing a powerful and flexible ORM (Object-Relational Mapping) system along with a database query language. It abstracts and streamlines database interactions by mapping Python classes to database tables, thereby allowing developers to interact with the database using Python code instead of writing raw SQL queries.
 
-- 
 #### Bcrypt 
+Bcrypt is a robust password hashing library in web development, primarily used for securing user passwords. By converting plain text passwords into a cryptographically secure hash and incorporating unique salts, Bcrypt effectively guards against common password vulnerabilities like rainbow table attacks and brute-force attempts. Its design intentionally slows down the hashing process, offering an additional layer of security. This library is crucial in user authentication systems for securely storing and verifying user passwords, enhancing overall application security.
 
-- 
 #### JwtManager
+JSON Web Tokens (JWT) are a standard method for secure and efficient information exchange in web applications, particularly in token-based authentication systems. JWTs encode user credentials and other data into compact, URL-safe JSON objects, which can be digitally signed for integrity and authenticity. They facilitate stateless authentication, making them ideal for modern web and mobile applications with distributed architectures. JWTs are widely used for authorizing users and enabling access to protected resources, ensuring secure and streamlined communication between clients and servers.
 
-- 
-#### 
 
 ## R8 Describe your projects model in terms of the relationships they have with each other
+```
+class Divisions(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    description = db.Column(db.Text)
+
+    def __repr__(self):
+        return f"<Division {self.name}>"
+```
+### Divisions Model
+The divisions model handles the weght division in the UFC, there are 12 division each with their own weight limit. This model contains a unique id, name, and a description.
+The Divisions model does not directly reference other models via foreign keys. However, it is referenced by the Fighters model. It uses a ```backref``` from the Fighters model, which allows for access to all fighters in a specific division. This is a one-to-many relationship, where one division can have multiple fighters.
+
+```
+class UFC_users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+```
+### Users Model
+The Users model contains the users for the platform, mainly to organise roles and relevenat privileges. E.g. Dana White is the only current admin and has full access to the platform, a Referee can modify the records and divisions but not delete. This model has a unique id, username, password, and role.
+Similar to the Divisions model, UFC_users does not contain a direct reference to other models via foreign keys. However, it is referenced by the Fighters model.
+A ```backref``` from the Fighters model is used here as well, enabling a one-to-many relationship where one user can be associated with multiple fighters.
+
+```
+class Fighters(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    age = db.Column(db.Integer)
+    height = db.Column(db.Float)
+    weight = db.Column(db.Float)
+
+    division_id = db.Column(db.Integer, db.ForeignKey('divisions.id'), nullable=False)
+    division = db.relationship('Divisions', backref=db.backref('fighters', lazy=True))
+
+    record = db.Column(db.String(20))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('ufc_users.id'), nullable=False)
+    user = db.relationship('UFC_users', backref=db.backref('fighters', lazy=True))
+
+    def __repr__(self):
+        return f"<Fighter {self.name}>"
+
+```
+### Fighters Model
+The Fighters model is the most important part of the database holding all fighter records and crucial information for the application to function correctly. This model has attributes like id, name, age, height, weight, record, and foreign keys division_id and user_id.
+The division_id is a foreign key that links to the Divisions model. This creates a many-to-one relationship between Fighters and Divisions, where multiple fighters can belong to one division.
+The user_id is another foreign key that links to the UFC_users model, establishing a many-to-one relationship between Fighters and UFC_users. This implies that each fighter is associated with a single user, but a user can be associated with multiple fighters.
+The division relationship in the Fighters model maps to the Divisions model and the user relationship maps to the UFC_users model.
 
 ## R9 Discuss the database relations to be implemented
 
