@@ -35,6 +35,10 @@ By creating an API that efficiently manages UFC fighter records and divisions, I
 
 ## R3 Why have you chosen this database system? What are the drawbacks compared to others?
 
+Postgres frequently emerges as the top choice for Flask applications, largely owing to its robust library support through packages such as Psycopg2 and SQLAlchemy. These libraries facilitate strong scalability and ease the learning curve for database implementation. Additionally, the support for Object-Relational Mapping (ORM) significantly contributes to Postgres's appeal. By employing ORM, which seamlessly maps the models feeding data into the database, developers find a reduced learning curve and a notable increase in scalability. This integration streamlines database interactions, making Postgres an efficient and user-friendly choice for Flask-based applications.
+
+Before choosing a DBMS it's important to consider other alternatives and assess potential drawbacks, regardless of how strong the initial appeal is. SQLite is another common relational database management system that is discussed below.
+
 ### Primary Differences
 
 ***Server-Client Model vs Embedded Database:***
@@ -69,24 +73,198 @@ By creating an API that efficiently manages UFC fighter records and divisions, I
 
 ***Extension and Language Support:*** With its extensibility and support for various programming languages, Postgres is highly adaptable to a wide range of applications and development needs.
 
-***Strong Community and Support:*** Being one of the oldest and most mature open-source relational databases, Postgres has a strong community and extensive documentation, ensuring reliable support.
 
 ### Conclusion
-While SQLite is an excellent choice for simpler, embedded database needs, Postgres stands out for applications that demand higher performance, scalability, and a comprehensive set of features. Its ability to handle complex, enterprise-level applications with efficiency and reliability makes Postgres a preferred choice for many developers and organizations.
+While SQLite is an excellent choice for simpler, embedded database needs, Postgres stands out for applications that demand higher performance, scalability, and a comprehensive set of features. Its ability to handle complex, enterprise-level applications with efficiency and reliability makes Postgres a preferred choice for this application.
+
+___Sources___
+
+https://www.boltic.io/blog/postgresql-vs-sqlite#:~:text=SQLite%20may%20be%20the%20better,data%20and%20support%20advanced%20features.
+
+https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems
+
 
 ## R4 Identify and discuss the key functionalities and benefits of an ORM
 
+
+Object-Relational Mapping (ORM) offers a streamlined method for interacting with databases, bypassing the need for direct SQL query injection. By integrating ORM, users can harness the familiar paradigms of their programming language, such as creating classes, objects, instances, and methods. This approach aligns database operations with the language-specific structure, simplifying the process of data manipulation between the application and the database. This methodology not only saves time but also, once mastered, significantly simplifies coding for database interactions.
+
+Benefits of using ORM include:
+
+Language Consistency:
+
+* ORM allows you to write database operations in the same programming language used in your application. For instance, in a Flask application, you can manage database interactions using Python objects instead of writing SQL queries. 
+
+Leveraging Language Features:
+
+* By using ORM, you gain access to advanced features and capabilities of the programming language in use. This includes taking advantage of language-specific libraries and packages, which can offer extended functionalities and tools that might not be readily available or as efficient when using raw SQL. For example, Python’s libraries like SQLAlchemy provide powerful ORM capabilities, enhancing the efficiency and scalability of database operations.
+
+
+Improved Code Maintainability and Readability:
+
+* Code that uses ORM tends to be more readable and maintainable. It abstracts the complexities of raw SQL queries into more intuitive and high-level programming constructs. This abstraction makes the code easier to understand, modify, and maintain, especially for developers who might not be experts in SQL.
+
+
+___Sources___
+
+https://blog.bitsrc.io/what-is-an-orm-and-why-you-should-use-it-b2b6f75f5e2a
+
+https://www.freecodecamp.org/news/what-is-an-orm-the-meaning-of-object-relational-mapping-database-tools/
+
 ## R5 Document all endpoints for your API
-Endpoint documentation should include:
-* HTTP request verb
-* Required data where applicable 
-* Expected response data 
-* Authentication methods where applicable
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 1**                      | `/users/register`                                               |
+| **HTTP Request Verb**             | POST                                                            |
+| **Required Data**                 | `username`, `password`, `role`                                  |
+| **Expected Response Data**        | Message indicating successful registration                     |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role        |
+
+![Endpoint1](/docs/endpoints/user%20registered.JPG)
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 2**                      | `/users/login`                                                  |
+| **HTTP Request Verb**             | POST                                                            |
+| **Required Data**                 | `username`, `password`                                          |
+| **Expected Response Data**        | Access token if credentials are valid                           |
+| **Authentication Methods**        | None (open access)                                              |
+
+![Endpoint 2](/docs/endpoints/login%20user.JPG)
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 3**                      | `/users/view_user/<int:user_id>`                                |
+| **HTTP Request Verb**             | GET                                                             |
+| **Required Data**                 | `user_id` (in URL)                                              |
+| **Expected Response Data**        | User information                                                |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role        |
+
+![Endpoint 3](/docs/endpoints/view%20user.JPG)
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 4**                      | `/users/update_user/<int:user_id>`                              |
+| **HTTP Request Verb**             | PUT                                                             |
+| **Required Data**                 | `user_id`, `current_password`, optional: `username`, `role`, `new_password` |
+| **Expected Response Data**        | Confirmation message on successful update                       |
+| **Authentication Methods**        | JWT required; User cannot update their own information          |
+
+![Endpoint 4](/docs/endpoints/update%20user.JPG)
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 5**                      | `/users/delete_user/<int:user_id>`                              |
+| **HTTP Request Verb**             | DELETE                                                          |
+| **Required Data**                 | `user_id`                                                       |
+| **Expected Response Data**        | Confirmation message on successful deletion                     |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role        |
+
+![Endpoint 5](/docs/endpoints/delete%20user.JPG)
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 6**                      | `/fighters/add_fighter`                                         |
+| **HTTP Request Verb**             | POST                                                            |
+| **Required Data**                 | `name`, `age`, `height`, `weight`, `record`, `division_id`      |
+| **Expected Response Data**        | Message indicating successful addition of fighter               |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role        |
+
+![Endpoint 6](/docs/endpoints/create%20fighter.JPG)
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 7**                      | `/fighters/view_fighter/<int:fighter_id>`                       |
+| **HTTP Request Verb**             | GET                                                             |
+| **Required Data**                 | `fighter_id` (in URL)                                           |
+| **Expected Response Data**        | Fighter information                                             |
+| **Authentication Methods**        | JWT required; Access limited to users with allowed roles        |
+
+![Endpoint 7](/docs/endpoints/view%20fighter.JPG)
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 8**                      | `/fighters/update_fighter/<int:fighter_id>`                     |
+| **HTTP Request Verb**             | PUT                                                             |
+| **Required Data**                 | `fighter_id`, `name`, `age`, `height`, `weight`, `record`, `division_id`|
+| **Expected Response Data**        | Confirmation message on successful update                       |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' or 'referee' roles |
+
+![Endpoint 8](/docs/endpoints/modify%20fighter.JPG)
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 9**                      | `/fighters/delete_fighter/<int:fighter_id>`                     |
+| **HTTP Request Verb**             | DELETE                                                          |
+| **Required Data**                 | `fighter_id`                                                    |
+| **Expected Response Data**        | Message indicating successful deletion                          |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role        |
+
+![Endpoint 9](/docs/endpoints/delete%20fighter.JPG)
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 10**                      | `/divisions/create_division`                                    |
+| **HTTP Request Verb**             | POST                                                            |
+| **Required Data**                 | `name`, `description`                                           |
+| **Expected Response Data**        | Message indicating successful creation of the division          |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role         |
+
+![Endpoint 10](/docs/endpoints/create%20division.JPG)
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 11**                      | `/divisions/view_division/<int:division_id>`                    |
+| **HTTP Request Verb**             | GET                                                             |
+| **Required Data**                 | `division_id` (in URL)                                          |
+| **Expected Response Data**        | Division information                                            |
+| **Authentication Methods**        | JWT required; Access limited to users with allowed roles        |
+
+![Endpoint 11](/docs/endpoints/view%20division.JPG)
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 12**                      | `/divisions/update_division/<int:division_id>`                  |
+| **HTTP Request Verb**             | PUT                                                             |
+| **Required Data**                 | `division_id`, `name`, `description`                            |
+| **Expected Response Data**        | Confirmation message on successful update                       |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' or 'referee' roles |
+
+![Endpoint 12](/docs/endpoints/updated%20division.JPG)
+
+
+| Aspect                            | Details                                                         |
+|-----------------------------------|-----------------------------------------------------------------|
+| **Endpoint 13**                      | `/divisions/delete_division/<int:division_id>`                  |
+| **HTTP Request Verb**             | DELETE                                                          |
+| **Required Data**                 | `division_id`                                                   |
+| **Expected Response Data**        | Message indicating successful deletion of the division          |
+| **Authentication Methods**        | JWT required; Access limited to users with 'admin' role         |
+
+![Endpoint 13](/docs/endpoints/delete%20division.JPG)
+
 
 
 ## R6 An ERD for the app
 
 ## R7 Detail any third-party servies your app will use
+#### SQLAlchemy 
+
+- 
+#### Bcrypt 
+
+- 
+#### JwtManager
+
+- 
+#### 
 
 ## R8 Describe your projects model in terms of the relationships they have with each other
 
@@ -94,7 +272,3 @@ Endpoint documentation should include:
 
 ## R10 Describe the way tasks are allocated and tracked in your project
 
-## References
-https://www.boltic.io/blog/postgresql-vs-sqlite#:~:text=SQLite%20may%20be%20the%20better,data%20and%20support%20advanced%20features.
-
-https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems
