@@ -100,5 +100,61 @@ def seed_db():
     )
     db.session.add(matt_bryant)
 
+    tom_aspinall = Fighters(
+            name="Tom Aspinall",
+            age=30,
+            height=198.0,
+            weight=216.0,
+            division_id=heavyweight.id,
+            record="14/3/0",
+            user_id=admin_user.id
+    )
+    db.session.add(tom_aspinall)
+
+    nate_diaz = Fighters(
+        name="Nate Diaz",
+        age=38,
+        height=183.0,
+        weight=169.0,
+        division_id=lightweight.id,
+        record="22/13/0",
+        user_id=admin_user.id
+    )
+    db.session.add(nate_diaz)
+    
+    robbie_lawler = Fighters(
+        name="Robbie Lawler",
+        age=41,
+        height=180.0,
+        weight=169.0,
+        division_id=welterweight.id,
+        record="30/16/0",
+        user_id=admin_user.id
+    )
+    db.session.add(robbie_lawler)
+    
+    conor_mcgregor = Fighters(
+        name="Conor Mcgregor",
+        age=35,
+        height=175.0,
+        weight=154.0,
+        division_id=lightweight.id,
+        record="22/6/0",
+        user_id=admin_user.id
+    )
+    db.session.add(conor_mcgregor)
+    
+    justin_gaethje = Fighters(
+        name="Justin Gaethje",
+        age=35,
+        height=180.0,
+        weight=154.0,
+        division_id=lightweight.id,
+        record="25/4/0",
+        user_id=admin_user.id
+    )
+    db.session.add(justin_gaethje)
+
+
     db.session.commit()
     print("Fighters seeded")
